@@ -19,6 +19,11 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     # to True to see a colour-coded version (if your terminal supports it).
     print(render_board(input, ansi=False))
 
+    #Note to self: 
+    #(r, q) are the coords of the cell
+    #(dr, dq) are the directions the cell will spread to
+    #(p, k) is the state, p being (b for blue, r for red), and k being the power of the current cell
+
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
     return [
