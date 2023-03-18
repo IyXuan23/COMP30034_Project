@@ -2,7 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from .utils import render_board
-
+from collections import deque
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
     """
@@ -24,6 +24,33 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     #(dr, dq) are the directions the cell will spread to
     #(p, k) is the state, p being (b for blue, r for red), and k being the power of the current cell
 
+    #in the game we are red
+
+    #set up a linked list
+    stack = deque()
+    root = boardstate(input)
+    stack.append(root)
+    
+    if len(stack) == 0:
+        print("Cannot find route, or error has occured")
+        return None
+    
+    currNode = stack.popleft()
+    print(currNode.board)
+
+    #if game is complete, reconstruct the current path and moves and return it
+    if gameFinish(currNode.board):
+        
+        #temporary placeholder
+        print("completed")
+
+    else:
+        expandNodes(currNode, stack)
+
+
+
+
+
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
     return [
@@ -33,3 +60,94 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         (1, 4, 0, -1),
         (1, 3, 0, -1)
     ]
+
+class boardstate:
+    """
+    This class will be used to store the nodes of the tree, where board will
+    be corresponding on the current boardstate, and paretNode will be the pointer
+    to the previous node that the node was branched from
+    """
+
+    def __init__(self, board=None):
+
+        #self.dataval here will contain the boardstate as a dictionary
+        self.board = board
+        #parentNode will be the previous node, used for reconstruction of the steps needed to win the game
+        self.parentNode = None
+        
+def gameFinish(input: dict[tuple, tuple]) -> bool:
+    """
+    This function will check for whether the game has finished, ie. whether
+    there are any more blue cells left within the board, returning false if there
+    are and true otherwise
+    """
+
+    for cell in input.values():
+        if "b" in cell:
+            return False
+
+    return True    
+
+def expandNodes(currNode: boardstate, stack: deque):
+
+    selectOptimalCell(currNode)
+
+
+def selectOptimalCell(currNode: boardstate):
+    """
+    This function is used to select the cell we will spread amongst the several cells
+    we control. It uses a heuristic to calculate the cell with the best chances
+    by including both power of the cell and distance to opposing cells within the
+    heuristic, and returns the coordinates of the chosen cell
+    """
+    
+    coords = []
+    heuristicScore = -1
+
+    #go through the dict until we find a red cell
+    print("begin optimal cell selection:")
+    for cell in currNode.board.items():
+        if "r" in cell[1]:
+            
+            #for this heurisitc, we will calculate the reach of the cell
+            #using its power, and check how many opposing cells are within its reach
+            #and expanding the cell with the most amount of opposing cells within its reach
+
+            currCellCoords = cell[0]
+            currCellPower = cell[1][0]
+
+            numCellsInRange = 0
+
+            print(currCellCoords)
+            print(currCellPower)
+
+            for cell2 in currNode.board.items():
+                if "b" in cell2[1]:
+
+                    if cellInRange(currCellCoords, cell2[0], currCellPower):
+                        numCellsInRange += 1
+
+def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int) -> bool:
+
+    """
+    This function will calculate whether a specific cell is within range
+    of another cell, by calculating whether the power is sufficient to 
+    overwrite the opposing cell when using SPREAD
+    """
+    
+    #checking for movement along the r-axis
+    if ((currCellCoords[1] == oppCellCoords[1]) and \
+        (abs(currCellCoords[0] - oppCellCoords[0]) <= currCellPower)):
+        return True
+    
+    #checking for movement along the q-axis
+    if ((currCellCoords[0] == oppCellCoords[0]) and \
+        (abs(currCellCoords[1] - oppCellCoords[1]) <= currCellPower)):
+        return True
+    
+    #checking for movement vertically and horizontally
+
+    #if the column has total sum of n < 6, it can spread to columns with total sum n+7
+    #vice versa, if n > 6, it can spread to columns with total sum n-7
+    #if n==6, then it can only spread to columns with n==6
+    if ()
