@@ -90,10 +90,9 @@ def gameFinish(input: dict[tuple, tuple]) -> bool:
 
 def expandNodes(currNode: boardstate, stack: deque):
 
-    selectOptimalCell(currNode)
+    chosenCellCoord = selectOptimalCell(currNode)
 
-
-def selectOptimalCell(currNode: boardstate):
+def selectOptimalCell(currNode: boardstate) -> list:
     """
     This function is used to select the cell we will spread amongst the several cells
     we control. It uses a heuristic to calculate the cell with the best chances
@@ -114,18 +113,24 @@ def selectOptimalCell(currNode: boardstate):
             #and expanding the cell with the most amount of opposing cells within its reach
 
             currCellCoords = cell[0]
-            currCellPower = cell[1][0]
+            currCellPower = cell[1][1]
 
             numCellsInRange = 0
 
-            print(currCellCoords)
-            print(currCellPower)
-
+            #check how many blue cells our current red cell can spread to
             for cell2 in currNode.board.items():
                 if "b" in cell2[1]:
 
                     if cellInRange(currCellCoords, cell2[0], currCellPower):
                         numCellsInRange += 1
+                
+            if (numCellsInRange > heuristicScore):
+                heuristicScore = numCellsInRange
+                coords = currCellCoords
+                print(coords)
+                print(heuristicScore)
+
+    return coords            
 
 def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int) -> bool:
 
@@ -150,4 +155,13 @@ def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int)
     #if the column has total sum of n < 6, it can spread to columns with total sum n+7
     #vice versa, if n > 6, it can spread to columns with total sum n-7
     #if n==6, then it can only spread to columns with n==6
-    if ()
+    #(due to the nature of the infinite board)
+
+    currCoordSum = currCellCoords[0] + currCellCoords[1]
+    currOppSum = oppCellCoords[0] + oppCellCoords[1]
+
+    if ((currCoordSum == currOppSum) or (abs(currCoordSum - currOppSum) == 7)):
+        if (abs(currCellCoords[0] - oppCellCoords[0]) <= currCellPower):
+            return True
+        
+    return False    
