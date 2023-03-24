@@ -102,7 +102,43 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
 
     #spread the cell in 6 directions, however we will give the direction that overtakes the
     #most opponent cells highest priority
-    #for i in range(0,6):
+
+    print("beginning expansion")
+    directions = ((0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1), (1, 0))
+    for direction in directions:
+        
+        oldBoardState = currNode.board
+
+        newCellCoord = chosenCellCoord
+        newCellCoord = list(newCellCoord)
+        chosenCellCoord = tuple(chosenCellCoord)
+
+        spreadPower = oldBoardState.get(chosenCellCoord)[1]
+        print(spreadPower)
+
+
+        #generate the new cells in the given direction, after which delete the original cell
+        #that has been expended
+        for i in range(0,spreadPower):
+            
+            newCellCoord[0] = newCellCoord[0] + direction[0]
+            newCellCoord[1] = newCellCoord[1] + direction[1]
+
+            if (oldBoardState.get(tuple(newCellCoord)) == None):
+                print("is empty cell")
+                oldBoardState[tuple(newCellCoord)] = ("r", 1)
+            else:
+                newPower = oldBoardState.get(newCellCoord)[1] + 1
+                oldBoardState[tuple(newCellCoord)] = ("r", newPower)    
+
+        oldBoardState.pop(chosenCellCoord)    
+    
+        newNode = boardstate(oldBoardState)
+        print(newNode.board)
+
+        #temporary placeholder of priority 1 for testing
+        pq.put((1, newNode))
+        break
 
         
 
