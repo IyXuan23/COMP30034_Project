@@ -54,6 +54,9 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         
             #temporary placeholder
             print("completed")
+            SequenceList = []
+            SequenceList = retraceSteps(currNode, SequenceList)
+            print(SequenceLists)
             break
 
         else:
@@ -303,3 +306,13 @@ def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int)
             return True
         
     return False    
+
+def retraceSteps(currNode: boardstate, SequenceList: list) -> list:
+        
+    if currNode.lastMove == None:
+        print(SequenceList)
+        return SequenceList
+
+    else:
+        SequenceList.append(currNode.lastMove)
+        SequenceList = retraceSteps(currNode.parentNode, SequenceList)
