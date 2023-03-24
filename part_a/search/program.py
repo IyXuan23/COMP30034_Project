@@ -85,7 +85,35 @@ class boardstate:
         #lastMove will record the last used move in the sequence, to be used in reconstruction of the
         #game-winning sequence of moves
         self.lastMove = None
-        
+
+    #used if priority of the 2 cells are the same, we shall compare their total cell powers
+    #DO NOT DELETE, WILL CAUSE ERROR xD
+    def __eq__(self, other):
+
+        totalSelfPower = 0
+        totalOtherPower = 0
+
+        for cell in self.board.items():
+            if "r" in cell[1]:
+                totalSelfPower+= cell[1][1]
+        for cell in other.board.items():
+            if "r" in cell[1]:
+                totalOtherPower+= cell[1][1]
+        return totalOtherPower == totalSelfPower
+
+
+    def __lt__(self, other):
+
+        totalSelfPower = 0
+        totalOtherPower = 0
+
+        for cell in self.board.items():
+            if "r" in cell[1]:
+                totalSelfPower+= cell[1][1]
+        for cell in other.board.items():
+            if "r" in cell[1]:
+                totalOtherPower+= cell[1][1]
+        return totalOtherPower > totalSelfPower
         
         
 def gameFinish(input: dict[tuple, tuple]) -> bool:
@@ -167,9 +195,6 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
         print("priorityScore: ")
         print(priorityScore)
 
-        #error generated here: when priority score is the same the pq will try and compare
-        #using newNode, but will give an error due to comparison of custom classes
-        #I (yixuan) will fix soon  ???
         pq.put((priorityScore, newNode))
         print("expanded in direction: ")
         print(direction)
