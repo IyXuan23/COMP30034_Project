@@ -43,19 +43,21 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         print("Cannot find route, or error has occured")
         return None
     
-    currNodePair = pq.get()
-    currNode = currNodePair[1]
-    print("root configuration: ")
-    print(currNode.board)
+    while not pq.empty():
+        currNodePair = pq.get()
+        currNode = currNodePair[1]
+        print("root configuration: ")
+        print(currNode.board)
 
-    #if game is complete, reconstruct the current path and moves and return it
-    if gameFinish(currNode.board):
+        #if game is complete, reconstruct the current path and moves and return it
+        if gameFinish(currNode.board):
         
-        #temporary placeholder
-        print("completed")
+            #temporary placeholder
+            print("completed")
+            break
 
-    else:
-        expandNodes(currNode, pq)
+        else:
+            expandNodes(currNode, pq)
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
@@ -80,6 +82,9 @@ class boardstate:
         self.board = board
         #parentNode will be the previous node, used for reconstruction of the steps needed to win the game
         self.parentNode = None
+        #lastMove will record the last used move in the sequence, to be used in reconstruction of the
+        #game-winning sequence of moves
+        self.lastMove = None
         
         
         
@@ -98,49 +103,108 @@ def gameFinish(input: dict[tuple, tuple]) -> bool:
 
 def expandNodes(currNode: boardstate, pq: PriorityQueue()):
 
+    """"This function will expand the node by a factor of 6 (due to the nature
+    of the hexagonal board) and assign each child node a priority, then add each
+    node to the priority queue to continue the search"""
+
     chosenCellCoord = selectOptimalCell(currNode)
+    #make a copy of the old boardstate that we will update to
+    #generate the new board
+    oldBoardState = currNode.board
+
+    spreadPower = oldBoardState.get(chosenCellCoord)[1]
+    print("CellSpreadPower: ")
+    print(spreadPower)
 
     #spread the cell in 6 directions, however we will give the direction that overtakes the
     #most opponent cells highest priority
 
-    print("beginning expansion")
     directions = ((0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1), (1, 0))
     for direction in directions:
-        
-        oldBoardState = currNode.board
+
+        newBoardState = oldBoardState.copy()
 
         newCellCoord = chosenCellCoord
         newCellCoord = list(newCellCoord)
         chosenCellCoord = tuple(chosenCellCoord)
-
-        spreadPower = oldBoardState.get(chosenCellCoord)[1]
-        print(spreadPower)
 
 
         #generate the new cells in the given direction, after which delete the original cell
         #that has been expended
         for i in range(0,spreadPower):
             
+            #ensure that if we exit and re-enter the board, the coords update
+            #correctly by not exceeding 7
             newCellCoord[0] = newCellCoord[0] + direction[0]
+            if (newCellCoord[0] >= 7):
+                newCellCoord[0] -= 7
+
             newCellCoord[1] = newCellCoord[1] + direction[1]
+            if (newCellCoord[1] >= 7):
+                newCellCoord[1] -= 7
 
-            if (oldBoardState.get(tuple(newCellCoord)) == None):
-                print("is empty cell")
-                oldBoardState[tuple(newCellCoord)] = ("r", 1)
+            #if existing cell is in place, overwrite it and +1 to the existing power,
+            #otherwise create a new cell in the spot
+            if (newBoardState.get(tuple(newCellCoord)) == None):
+                newBoardState[tuple(newCellCoord)] = ("r", 1)
             else:
-                newPower = oldBoardState.get(newCellCoord)[1] + 1
-                oldBoardState[tuple(newCellCoord)] = ("r", newPower)    
+                newPower = newBoardState.get(tuple(newCellCoord))[1] + 1
+                newBoardState[tuple(newCellCoord)] = ("r", newPower)    
 
-        oldBoardState.pop(chosenCellCoord)    
-    
-        newNode = boardstate(oldBoardState)
+        #deleting original expended cell
+        newBoardState.pop(chosenCellCoord)    
+
+        newNode = boardstate(newBoardState)
+        newNode.parentNode = currNode
+        newNode.lastMove = ("SPREAD", chosenCellCoord, direction)
+
+        print(newNode.lastMove)
         print(newNode.board)
 
-        #temporary placeholder of priority 1 for testing
-        pq.put((1, newNode))
-        break
+        #temporary placeholder of priority 1 for testing ???
 
-        
+        priorityScore = generatePriority(newNode)
+        print("priorityScore: ")
+        print(priorityScore)
+
+        #error generated here: when priority score is the same the pq will try and compare
+        #using newNode, but will give an error due to comparison of custom classes
+        #I (yixuan) will fix soon  ???
+        pq.put((priorityScore, newNode))
+        print("expanded in direction: ")
+        print(direction)
+        print("\n")
+
+
+def generatePriority(newNode: boardstate) -> int:
+    """
+    This function will generate a priority to assign to the given node, by calculating the euclidean
+    distance between the red and blue cells. In the event of mulitple red cells, we will use the 
+    distance of the closest red cell to generate the distance
+    """        
+
+    priorityScore = 0
+
+    for blueCell in newNode.board.items():
+        if "b" in blueCell[1]:
+
+            closestDistance = -1
+
+            for redCell in newNode.board.items():    
+                if "r" in redCell[1]:
+
+                    euclideanDistanceR = abs(blueCell[0][0] - redCell[0][0])
+                    euclideanDistanceQ = abs(blueCell[0][1] - redCell[0][1])
+                    euclideanDistanceTotal = euclideanDistanceR + euclideanDistanceQ
+
+                    if euclideanDistanceTotal > closestDistance:
+                        closestDistance = euclideanDistanceTotal
+
+            priorityScore += closestDistance    
+    
+    return priorityScore
+
+
 
 def selectOptimalCell(currNode: boardstate) -> list:
     """
@@ -151,10 +215,10 @@ def selectOptimalCell(currNode: boardstate) -> list:
     """
     
     coords = []
+    #negative value will ensure all generated scores will be greater that -1
     heuristicScore = -1
 
     #go through the dict until we find a red cell
-    print("begin optimal cell selection:")
     for cell in currNode.board.items():
         if "r" in cell[1]:
             
@@ -177,9 +241,8 @@ def selectOptimalCell(currNode: boardstate) -> list:
             if (numCellsInRange > heuristicScore):
                 heuristicScore = numCellsInRange
                 coords = currCellCoords
-                print(coords)
-                print(heuristicScore)
 
+    print("optimal cell selected")
     return coords            
 
 def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int) -> bool:
