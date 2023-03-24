@@ -2,7 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from .utils import render_board
-from collections import deque
+from queue import PriorityQueue
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
     """
@@ -23,19 +23,29 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     #(r, q) are the coords of the cell
     #(dr, dq) are the directions the cell will spread to
     #(p, k) is the state, p being (b for blue, r for red), and k being the power of the current cell
-
     #in the game we are red
-
-    #set up a linked list
-    stack = deque()
-    root = boardstate(input)
-    stack.append(root)
     
-    if len(stack) == 0:
+    #directions:
+    # (0,1) = down-right
+    # (-1,1) = downwards
+    # (-1,0) = down-left
+    # (0,-1) = up-left
+    # (1,-1) = upwards
+    # (1,0) = up-right
+
+    #set up a priority queue
+    pq = PriorityQueue()
+    root = boardstate(input)
+    #since root will be the only initial node, the priority is unimportant
+    pq.put((0, root))
+
+    if pq.empty():
         print("Cannot find route, or error has occured")
         return None
     
-    currNode = stack.popleft()
+    currNodePair = pq.get()
+    currNode = currNodePair[1]
+    print("root configuration: ")
     print(currNode.board)
 
     #if game is complete, reconstruct the current path and moves and return it
@@ -45,11 +55,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         print("completed")
 
     else:
-        expandNodes(currNode, stack)
-
-
-
-
+        expandNodes(currNode, pq)
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
@@ -75,6 +81,8 @@ class boardstate:
         #parentNode will be the previous node, used for reconstruction of the steps needed to win the game
         self.parentNode = None
         
+        
+        
 def gameFinish(input: dict[tuple, tuple]) -> bool:
     """
     This function will check for whether the game has finished, ie. whether
@@ -84,13 +92,19 @@ def gameFinish(input: dict[tuple, tuple]) -> bool:
 
     for cell in input.values():
         if "b" in cell:
-            return False
+            return False     
 
     return True    
 
-def expandNodes(currNode: boardstate, stack: deque):
+def expandNodes(currNode: boardstate, pq: PriorityQueue()):
 
     chosenCellCoord = selectOptimalCell(currNode)
+
+    #spread the cell in 6 directions, however we will give the direction that overtakes the
+    #most opponent cells highest priority
+    #for i in range(0,6):
+
+        
 
 def selectOptimalCell(currNode: boardstate) -> list:
     """
