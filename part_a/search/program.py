@@ -44,6 +44,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         return None
     
     while not pq.empty():
+
         currNodePair = pq.get()
         currNode = currNodePair[1]
         print("root configuration: ")
@@ -122,15 +123,24 @@ class boardstate:
 def gameFinish(input: dict[tuple, tuple]) -> bool:
     """
     This function will check for whether the game has finished, ie. whether
-    there are any more blue cells left within the board, returning false if there
-    are and true otherwise
+    there are any more blue cells left within the board and red cells remaining, 
+    returning false if there are and true otherwise
     """
 
+    redCellsExist = False
+
+    #if blue cells exist, game isn't over
+    #alternatively, if there are no red cells, game is not won either, so return false
     for cell in input.values():
         if "b" in cell:
             return False     
+        if "r" in cell:
+            redCellsExist = True
 
-    return True    
+    if redCellsExist:
+        return True
+    else:
+        return False    
 
 def expandNodes(currNode: boardstate, pq: PriorityQueue()):
 
@@ -213,6 +223,8 @@ def generatePriority(newNode: boardstate) -> int:
 
     priorityScore = 0
 
+    #iterate through blue cells, and find the closest red cell, then take the
+    #distance between the 2, and add it to the total score
     for blueCell in newNode.board.items():
         if "b" in blueCell[1]:
 
@@ -241,7 +253,7 @@ def selectOptimalCell(currNode: boardstate) -> list:
     by including both power of the cell and distance to opposing cells within the
     heuristic, and returns the coordinates of the chosen cell
     """
-    
+    #coords of the chosen cell
     coords = []
     #negative value will ensure all generated scores will be greater that -1
     heuristicScore = -1
@@ -265,12 +277,12 @@ def selectOptimalCell(currNode: boardstate) -> list:
 
                     if cellInRange(currCellCoords, cell2[0], currCellPower):
                         numCellsInRange += 1
-                
+
+            #replace cell if current cell is superior in score    
             if (numCellsInRange > heuristicScore):
                 heuristicScore = numCellsInRange
                 coords = currCellCoords
 
-    print("optimal cell selected")
     return coords            
 
 def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int) -> bool:
@@ -308,7 +320,10 @@ def cellInRange(currCellCoords: tuple, oppCellCoords: tuple, currCellPower: int)
     return False    
 
 def retraceSteps(currNode: boardstate, SequenceList: list) -> list:
-        
+
+    """This function will go along the winning sequence, and return the list of winnning moves
+    by referencing the parent nodes until the root is reached"""
+
     if currNode.lastMove == None:
         return SequenceList
 
