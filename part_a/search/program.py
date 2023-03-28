@@ -54,7 +54,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         if gameFinish(currNode.board):
         
             #temporary placeholder
-            print("completed")
+            print("Solution Found")
             SequenceList = []
             SequenceList = retraceSteps(currNode, SequenceList)
             print(SequenceList)
@@ -89,6 +89,8 @@ class boardstate:
         #lastMove will record the last used move in the sequence, to be used in reconstruction of the
         #game-winning sequence of moves
         self.lastMove = None
+        #number of moves that have been carried out
+        self.NumOfMoves = 0
 
     #used if priority of the 2 cells are the same, we shall compare their total cell powers
     #DO NOT DELETE, WILL CAUSE ERROR xD
@@ -154,8 +156,6 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
     oldBoardState = currNode.board
 
     spreadPower = oldBoardState.get(chosenCellCoord)[1]
-    print("CellSpreadPower: ")
-    print(spreadPower)
 
     #spread the cell in 6 directions, however we will give the direction that overtakes the
     #most opponent cells highest priority
@@ -197,21 +197,14 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
 
         newNode = boardstate(newBoardState)
         newNode.parentNode = currNode
+        newNode.NumOfMoves = currNode.NumOfMoves + 1
         newNode.lastMove = ("SPREAD", chosenCellCoord, direction)
-
-        print(newNode.lastMove)
-        print(newNode.board)
 
         #temporary placeholder of priority 1 for testing ???
 
         priorityScore = generatePriority(newNode)
-        print("priorityScore: ")
-        print(priorityScore)
 
         pq.put((priorityScore, newNode))
-        print("expanded in direction: ")
-        print(direction)
-        print("\n")
 
 
 def generatePriority(newNode: boardstate) -> int:
