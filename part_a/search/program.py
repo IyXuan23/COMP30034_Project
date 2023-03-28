@@ -324,3 +324,39 @@ def retraceSteps(currNode: boardstate, SequenceList: list) -> list:
         SequenceList.append(currNode.lastMove)
         SequenceList = retraceSteps(currNode.parentNode, SequenceList)
         return SequenceList
+
+
+def generatePriority2(newNode: boardstate) -> int:
+    """
+    This function is a unused prototype of a A*star search, where
+    f(x) = g(x) + h(x), where the g(x) is the amount of moves taken
+    to reach the current point and h(x) is the euclidean distance between the 
+    closest red and blue cells
+    """        
+
+    priorityScore = 0
+
+    #since our goal is to find the minimum number of moves, the culmulative cost'
+    #g(x) should take the highest weightage, so we assign each move a weightage of 1000
+    priorityScore += newNode.NumOfMoves * 1000
+
+    #iterate through blue cells, and find the closest red cell, then take the
+    #distance between the 2, and add it to the total score
+    for blueCell in newNode.board.items():
+        if "b" in blueCell[1]:
+
+            closestDistance = -1
+
+            for redCell in newNode.board.items():    
+                if "r" in redCell[1]:
+
+                    euclideanDistanceR = abs(blueCell[0][0] - redCell[0][0])
+                    euclideanDistanceQ = abs(blueCell[0][1] - redCell[0][1])
+                    euclideanDistanceTotal = euclideanDistanceR + euclideanDistanceQ
+
+                    if euclideanDistanceTotal > closestDistance:
+                        closestDistance = euclideanDistanceTotal
+
+            priorityScore += closestDistance    
+    
+    return priorityScore
