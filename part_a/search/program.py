@@ -47,31 +47,26 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
 
         currNodePair = pq.get()
         currNode = currNodePair[1]
-        print("root configuration: ")
-        print(currNode.board)
 
         #if game is complete, reconstruct the current path and moves and return it
         if gameFinish(currNode.board):
         
-            #temporary placeholder
-            print("Solution Found")
             SequenceList = []
             SequenceList = retraceSteps(currNode, SequenceList)
-            print(SequenceList)
-            break
+            return SequenceList
 
         else:
             expandNodes(currNode, pq)
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
-    return [
-        (5, 6, -1, 1),
-        (3, 1, 0, 1),
-        (3, 2, -1, 1),
-        (1, 4, 0, -1),
-        (1, 3, 0, -1)
-    ]
+    #return [
+    #    (5, 6, -1, 1),
+    #    (3, 1, 0, 1),
+    #    (3, 2, -1, 1),
+    #    (1, 4, 0, -1),
+    #    (1, 3, 0, -1)
+    #]
 
 class boardstate:
     """
@@ -198,7 +193,7 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
         newNode = boardstate(newBoardState)
         newNode.parentNode = currNode
         newNode.NumOfMoves = currNode.NumOfMoves + 1
-        newNode.lastMove = ("SPREAD", chosenCellCoord, direction)
+        newNode.lastMove = (chosenCellCoord[0], chosenCellCoord[1], direction[0], direction[1])
 
         #temporary placeholder of priority 1 for testing ???
 
@@ -321,7 +316,7 @@ def retraceSteps(currNode: boardstate, SequenceList: list) -> list:
         return SequenceList
 
     else:
-        SequenceList.append(currNode.lastMove)
+        SequenceList.insert(0, currNode.lastMove)
         SequenceList = retraceSteps(currNode.parentNode, SequenceList)
         return SequenceList
 
