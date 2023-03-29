@@ -245,6 +245,7 @@ def selectOptimalCell(currNode: boardstate) -> list:
     coords = []
     #negative value will ensure all generated scores will be greater that -1
     heuristicScore = -1
+    optimalCellPower = -1
 
     #go through the dict until we find a red cell
     for cell in currNode.board.items():
@@ -270,6 +271,16 @@ def selectOptimalCell(currNode: boardstate) -> list:
             if (numCellsInRange > heuristicScore):
                 heuristicScore = numCellsInRange
                 coords = currCellCoords
+                optimalCellPower = currCellPower
+            #if the power is the same, select the cell with higher power, will likely give better
+            # results due to spreading across more spaces    
+            if (numCellsInRange == heuristicScore):
+                if (currCellPower > optimalCellPower):
+                    heuristicScore = numCellsInRange
+                    coords = currCellCoords
+                    optimalCellPower = currCellPower
+
+
 
     return coords            
 
