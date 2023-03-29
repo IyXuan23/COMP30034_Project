@@ -228,7 +228,7 @@ def generatePriority(newNode: boardstate) -> int:
 
                     euclideanDistanceR = abs(blueCell[0][0] - redCell[0][0])
                     euclideanDistanceQ = abs(blueCell[0][1] - redCell[0][1])
-                    euclideanDistanceTotal = euclideanDistanceR + euclideanDistanceQ
+                    euclideanDistanceTotal = (euclideanDistanceR + euclideanDistanceQ)
 
                     if euclideanDistanceTotal > closestDistance:
                         closestDistance = euclideanDistanceTotal

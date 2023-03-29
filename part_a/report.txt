@@ -1,0 +1,57 @@
+Report
+
+Overview
+
+For part A of this assignment, our team has used a Greedy Best-First Search algorithm, where f(x) = h(x).
+
+Firstly, we set up a priority queue using the Python queue library. With every iteration, we will pop the value with the 
+lowest priority, check whether it contains our goal state (where there are only red cells on the board), else we expand it.
+
+We also define a custom class to hold our nodes called "boardstate", which contains its current board information, 
+the parent node, the last move performed to reach this node, and the number of moves taken to reach this node.
+
+Expansion of the nodes involves a slightly complicated process, where an "optimal cell" is selected out of all available red
+cells, and that cell is then spread 6 different directions, in total generating 6 possible nodes. To select the "optimal cell",
+we calculate the total number of blue cells that are within the spreading range of any given red cell. The cell with the highest
+number of blue cells within its range is then selected as our optimal cell (can be seen in selectOptimalCell function).
+
+After the "optimal cell" is selected, 6 nodes are generated, one for each potential direction the cell is spread in (seen 
+in ExpandNodes function), and each child node is assigned a priority score, and then inserted into the priority queue.
+
+
+Space Time Complexity
+
+The time complexity is O(b^m). In this particular case, there is a branching factor of 6 since we create 6 nodes from a given node
+and the maximum depth can be theoretically be infinity, although it is likely it will be a finite number due to the single player
+nature of the game that does not allow infinite loops.
+
+The space complexity is O(b^m), as the algorithm keeps all the generated nodes in memory, so as to be able to backtrack and find the 
+path to the goal state.
+
+
+Heuristic
+
+Initially, the heurisitc we tried to go for was an A* search, with f(x) = h(x) + g(x). However, we found it was rather difficult as
+the heurisitc h(x) we decided to go for euclidean distance between red and blue cells, whilst the cumulative cost g(x) was the number
+of moves taken. We attempted to give the number of moves some weight (as seen in generatePriority2 function), but too high of a weight
+would cause the program to perform similarly to a breadth first search, so ultimately we settled for a best-first search.
+
+Our heurisitc was the euclidean distance between blue cells and their closest red cells. We take sum of the absolute difference of q and
+r values between the blue and red cell, and the total sum is assigned as a node's heuristic/priority score. 
+
+The logic in this is that greedy search works well due to the snowball effect; by spreading and taking more opposing cells, we give 
+ourselves more cells with higher power to work with (enemy cell's power + 1 due to our spread), which overall will likely result in faster
+searches.
+
+This is also unlikely to compromise optimality due to the combination of selectOptimalCell and the ExpandCells function working together in
+conjunction. The "optimal cell" will be the cell that can spread to the most number of opposing cells, so we expand that cell in 6 directions
+to explore its possibilities, spreading to as many opposing cells as possible before tackling other "less optimal" cells, and using the 
+attained cells to maximise our advantages.
+
+Spawn Action Possibility
+
+In Part A of the project, we are only allowed to use SPREAD. However, if SPAWN was a possibility, it would likely improve the search algorithm
+greatly. In general, to infect an opposing cell capitalising on SPAWN requires 2 moves, spawning the cell beside our target cell, then spreading
+in the direction of our target cell. This means that any opposing cells that require more than 2 moves to spread to taken using this approach.
+The aforementioned snowball may also further strengthen with the ability to SPREAD, as a cluster of opposing cells can be quickly infected if
+a cell is SPAWN'd beside it and starts spreading to it.
