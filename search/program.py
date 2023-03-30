@@ -195,8 +195,6 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
         newNode.NumOfMoves = currNode.NumOfMoves + 1
         newNode.lastMove = (chosenCellCoord[0], chosenCellCoord[1], direction[0], direction[1])
 
-        #temporary placeholder of priority 1 for testing ???
-
         priorityScore = generatePriority(newNode)
 
         pq.put((priorityScore, newNode))
@@ -342,27 +340,29 @@ def generatePriority2(newNode: boardstate) -> int:
 
     priorityScore = 0
 
-    #since our goal is to find the minimum number of moves, the culmulative cost'
-    #g(x) should take the highest weightage, so we assign each move a weightage of 1000
-    priorityScore += newNode.NumOfMoves * 1000
+    #since our goal is to find the minimum number of moves, the culmulative cost
+    #g(x) is the number of moves 
+    priorityScore += newNode.NumOfMoves
 
     #iterate through blue cells, and find the closest red cell, then take the
     #distance between the 2, and add it to the total score
+    #for each blue cell, if a red cell can spread to it in 1 move, we assign it a heuristic of 1
+    #else we assign it a heuristic score of 2
     for blueCell in newNode.board.items():
         if "b" in blueCell[1]:
 
-            closestDistance = -1
+            hasCellInRange = 0
 
             for redCell in newNode.board.items():    
                 if "r" in redCell[1]:
 
-                    euclideanDistanceR = abs(blueCell[0][0] - redCell[0][0])
-                    euclideanDistanceQ = abs(blueCell[0][1] - redCell[0][1])
-                    euclideanDistanceTotal = euclideanDistanceR + euclideanDistanceQ
+                    if cellInRange(redCell[0], blueCell[0], redCell[1][1]):
+                        
+                        hasCellInRange = 1
+                        priorityScore += 1
+                        break
 
-                    if euclideanDistanceTotal > closestDistance:
-                        closestDistance = euclideanDistanceTotal
-
-            priorityScore += closestDistance    
+            if hasCellInRange != 0:
+                priorityScore += 2
     
     return priorityScore
