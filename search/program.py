@@ -202,9 +202,9 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
 
 def generatePriority(newNode: boardstate) -> int:
     """
-    This function will generate a priority to assign to the given node, by calculating the euclidean
-    distance between the red and blue cells. In the event of mulitple red cells, we will use the 
-    distance of the closest red cell to generate the distance
+    This function (which is unused, was the prototype)will generate a priority to assign to the given node, 
+    by calculating the euclidean distance between the red and blue cells. In the event of mulitple red cells, 
+    we will use the distance of the closest red cell to generate the distance
     """        
 
     priorityScore = 0
@@ -332,17 +332,19 @@ def retraceSteps(currNode: boardstate, SequenceList: list) -> list:
 
 def generatePriority2(newNode: boardstate) -> int:
     """
-    This function is a unused prototype of a A*star search, where
+    This function is a implementation of a A*star search, where
     f(x) = g(x) + h(x), where the g(x) is the amount of moves taken
-    to reach the current point and h(x) is the euclidean distance between the 
-    closest red and blue cells
+    to reach the current point (assigned a score of 14) and 
+    h(x) is the euclidean distance between the closest red and blue cells
     """        
 
     priorityScore = 0
 
     #since our goal is to find the minimum number of moves, the culmulative cost
-    #g(x) is the number of moves 
-    priorityScore += newNode.NumOfMoves * 10
+    #g(x) is the number of moves, each move with score 14 since the max distance between
+    #2 cells is 12 (6,6 vs 0,0) and to maintain optimality the moves must have higher
+    #weightage
+    priorityScore += newNode.NumOfMoves * 14
 
     #iterate through blue cells, and find the closest red cell, then take the
     #distance between the 2
