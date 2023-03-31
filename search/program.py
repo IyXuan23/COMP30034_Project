@@ -195,7 +195,7 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
         newNode.NumOfMoves = currNode.NumOfMoves + 1
         newNode.lastMove = (chosenCellCoord[0], chosenCellCoord[1], direction[0], direction[1])
 
-        priorityScore = generatePriority2(newNode)
+        priorityScore = generatePriorityAStar(newNode)
 
         pq.put((priorityScore, newNode))
 
@@ -330,7 +330,7 @@ def retraceSteps(currNode: boardstate, SequenceList: list) -> list:
         return SequenceList
 
 
-def generatePriority2(newNode: boardstate) -> int:
+def generatePriorityAStar(newNode: boardstate) -> int:
     """
     This function is a implementation of a A*star search, where
     f(x) = g(x) + h(x), where the g(x) is the amount of moves taken
@@ -344,7 +344,7 @@ def generatePriority2(newNode: boardstate) -> int:
     #g(x) is the number of moves, each move with score 14 since the max distance between
     #2 cells is 12 (6,6 vs 0,0) and to maintain optimality the moves must have higher
     #weightage
-    priorityScore += newNode.NumOfMoves * 14
+    priorityScore += newNode.NumOfMoves * 300
 
     #iterate through blue cells, and find the closest red cell, then take the
     #distance between the 2

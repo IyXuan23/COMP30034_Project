@@ -30,7 +30,7 @@ path to the goal state.
 
 Heuristic
 
-In A* search, f(x) = g(x) + h(x)
+In A* search, the evaluation function f(x) = g(x) + h(x).
 
 For our heurisitc h(x), we went for the euclidean distance between blue cells and their closest red cell. The minimum value for each
 pair is 1, whilst the maximum is 12. We take sum of the absolute difference of q and r values between the blue and red cell, and the 
@@ -39,7 +39,10 @@ towards the blue cells and eventually capture them to form a h(x) of 0.
 
 The g(x), which is the culmulative cost of the path taken, is calculated in the number of moves. To ensure that the h(x) always
 underestimates the true cost, and that g(x) has the highest weightage to ensure optimality of the solution, we give each move a value
-of 100. This allows us to find a solution with least possible moves whilst having the heurisitc guide us without compromising optimality.
+of 300. We derive this value from the absolute worse case scenario of the heuristic, where each side has 25/24 cells, and they are all of 
+a maximum distance from one another, 25 * 12 = 300. By giving each move a score of 300, we ensure the heurisitc is admissible as it will
+always underestimate the cost of a move. This allows us to find a solution with least possible moves whilst having the heurisitc guide us, 
+without compromising optimality.
 
 The logic in choosing this heurisitc is that due to the snowball effect, it would be beneficical to take opposing cells as soon as
 possible, giving us a greater amount of cells to work with (enemy cell's power + 1 due to our spread), which overall will likely result in 
@@ -54,5 +57,6 @@ in the direction of our target cell. This means that any opposing cells that req
 The aforementioned snowball may also further strengthen with the ability to SPREAD, as a cluster of opposing cells can be quickly infected if
 a cell is SPAWN'd beside it and starts spreading to it.
 
-In terms of specific modifications of code, we would likely adjust our heurisitc, after all the cell expansions and we run out of 
-cellInRange
+In terms of specific modifications of code, we would likely adjust our heurisitc, firstly we would expand all the cells that can capture opposing cells
+in a single move. After which, we would begin spawning cells for opposing cells that require more than 1 move to capture, to limit the number of moves
+needed to capture to 2.
