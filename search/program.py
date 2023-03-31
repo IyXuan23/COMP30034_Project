@@ -146,6 +146,13 @@ def expandNodes(currNode: boardstate, pq: PriorityQueue()):
     node to the priority queue to continue the search"""
 
     chosenCellCoord = selectOptimalCell(currNode)
+
+    #if given a board state that has no blue or red cells, chosenCellCoord will be 
+    #an empty list. If so, simply return and not expand the node
+    if (len(chosenCellCoord) == 0):
+        return
+
+
     #make a copy of the old boardstate that we will update to
     #generate the new board
     oldBoardState = currNode.board
